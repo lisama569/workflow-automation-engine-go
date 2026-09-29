@@ -27,9 +27,9 @@ var (
 // It is the reference implementation and is safe for concurrent goroutines.
 // Cross-process durability is provided by FileStore.
 type MemoryStore struct {
-	mu       sync.Mutex
-	data     map[string]*WorkflowState // key: workflowName/triggerID
-	nextVer  map[string]int
+	mu      sync.Mutex
+	data    map[string]*WorkflowState // key: workflowName/triggerID
+	nextVer map[string]int
 }
 
 func memKey(workflowName, triggerID string) string {

@@ -2,10 +2,10 @@ package workflow
 
 import (
 	"context"
-	"sync"
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -305,9 +305,9 @@ func validateDef(def Definition) error {
 
 // attemptOutcome is the result of running one step's current attempt wave.
 type attemptOutcome struct {
-	name     string
-	step     *StepDef
-	attempt  Attempt
+	name      string
+	step      *StepDef
+	attempt   Attempt
 	retriable bool
 }
 

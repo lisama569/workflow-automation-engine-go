@@ -101,12 +101,12 @@ type StepState struct {
 // WorkflowState is the persisted state of one workflow instance.
 // One instance corresponds to one (WorkflowName, TriggerID) pair.
 type WorkflowState struct {
-	WorkflowName string               `json:"workflow_name"`
-	TriggerID    string               `json:"trigger_id"`
-	Status       Status               `json:"status"`
+	WorkflowName string                `json:"workflow_name"`
+	TriggerID    string                `json:"trigger_id"`
+	Status       Status                `json:"status"`
 	Steps        map[string]*StepState `json:"steps"`
-	CreatedAt    string               `json:"created_at"`
-	UpdatedAt    string               `json:"updated_at"`
+	CreatedAt    string                `json:"created_at"`
+	UpdatedAt    string                `json:"updated_at"`
 	// Version is incremented on every persisted update; used for optimistic
 	// concurrency control between processes.
 	Version int `json:"version"`
@@ -116,7 +116,7 @@ type WorkflowState struct {
 
 // RunResult is returned by Engine.Run and Engine.Get.
 type RunResult struct {
-	State   *WorkflowState
+	State *WorkflowState
 	// Adopted is true when this call found an existing instance for the
 	// triggerID (duplicate delivery) instead of creating a new one.
 	Adopted bool

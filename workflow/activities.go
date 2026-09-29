@@ -23,8 +23,8 @@ func IdempotentActivity(ledger *Ledger, keyInputField string, fn func(input map[
 //
 //   - noop      : echoes its input
 //   - flaky     : fails with a retryable error until input["fail_times"]
-//                 consecutive failures for this trigger have been observed,
-//                 then succeeds (deterministic, persisted in the ledger)
+//     consecutive failures for this trigger have been observed,
+//     then succeeds (deterministic, persisted in the ledger)
 //   - alwaysfail: fails with a non-retryable error
 //   - slow      : sleeps input["sleep_ms"] milliseconds (timeout demo)
 func RegisterDemoActivities(reg *Registry, ledger *Ledger) {
