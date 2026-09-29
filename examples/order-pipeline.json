@@ -1,0 +1,26 @@
+{
+  "name": "order-pipeline",
+  "steps": [
+    { "name": "validate", "kind": "activity", "activity": "validate" },
+    {
+      "name": "fanout",
+      "kind": "parallel",
+      "children": [
+        { "name": "risk_check", "kind": "activity", "activity": "risk_check" },
+        {
+          "name": "reserve_inventory",
+          "kind": "activity",
+          "activity": "reserve_inventory",
+          "timeout": "5s",
+          "retry_policy": {
+            "max_attempts": 3,
+            "max_backoff": "100ms",
+            "initial_backoff": "20ms",
+            "backoff_multiplier": 2
+          }
+        }
+      ]
+    },
+    { "name": "place_order", "kind": "activity", "activity": "place_order" }
+  ]
+}
