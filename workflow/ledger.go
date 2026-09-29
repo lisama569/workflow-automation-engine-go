@@ -189,3 +189,64 @@ func (l *InMemoryLedger) Count() int {
 type EffectLedger interface {
 	Apply(ctx context.Context, key string, fn func() (map[string]any, error)) (*LedgerResult, bool, error)
 }
+
+// ---------------------------------------------------------------------------
+// Persistent counter (used by deterministic demo activities)
+// ---------------------------------------------------------------------------
+
+type counterFile struct {
+	Counters map[string]int `json:"counters"`
+}
+
+// CounterPath returns the path used by persisted counters.
+func (l *Ledger) counterPath() string { return filepath.Join(filepath.Dir(l.path), "counters.json") }
+
+// IncrementCounter atomically adds delta (typically 1) to a named counter
+// and returns the new value. A missing counter is treated as zero.
+func (l *Ledger) IncrementCounter(ctx context.Context, name string, delta int) (int, error) {
+	if err := ctx.Err(); err != nil {
+		return 0, err
+	}
+	lockPath := filepath.Join(filepath.Dir(l.path), "counters.lock")
+	lock, err := fileLock(lockPath)
+	if err != nil {
+		return 0, err
+	}
+	defer unlock(lock)
+
+	f := counterFile{Counters: map[string]int{}}
+	if data, err := os.ReadFile(l.counterPath()); err == nil {
+		if err := json.Unmarshal(data, &f); err != nil {
+			return 0, fmt.Errorf("corrupt counters: %w", err)
+		}
+		if f.Counters == nil {
+			f.Counters = map[string]int{}
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return 0, err
+	}
+	f.Counters[name] += delta
+	if err := atomicWriteJSON(l.counterPath(), f); err != nil {
+		return 0, err
+	}
+	return f.Counters[name], nil
+}
+
+// Counter reads a named counter without changing it.
+func (l *Ledger) Counter(ctx context.Context, name string) (int, error) {
+	lockPath := filepath.Join(filepath.Dir(l.path), "counters.lock")
+	lock, err := fileLock(lockPath)
+	if err != nil {
+		return 0, err
+	}
+	defer unlock(lock)
+	f := counterFile{Counters: map[string]int{}}
+	if data, err := os.ReadFile(l.counterPath()); err == nil {
+		if err := json.Unmarshal(data, &f); err != nil {
+			return 0, fmt.Errorf("corrupt counters: %w", err)
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return 0, err
+	}
+	return f.Counters[name], nil
+}
