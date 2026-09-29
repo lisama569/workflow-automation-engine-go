@@ -1,0 +1,8 @@
+# local runtime data (workflow state, effect ledger, counters)
+.wfdata/
+.wf-smoke-*/
+
+# built binaries
+/wf
+/cmd/wf/wf
+*.test
